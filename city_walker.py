@@ -5,6 +5,7 @@ import networkx
 from scipy.spatial import KDTree
 import numpy as np
 # csv from here (free) https://simplemaps.com/data/world-cities
+# KDTree : https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.html
 
 class City:
   def __init__(self, name: str, admin_name: str, latitude: float, longitude: float, dist_from_start: int):
@@ -50,6 +51,7 @@ def get_all_cities(start_name: str, start_admin_name: str, file_name: str) -> li
 def coords_to_xyz(lat, lon):
   '''
   converts latitude and longitude to a point on a unit sphere. this makes computation of distances easier :D
+  https://stackoverflow.com/questions/1185408/converting-from-longitude-latitude-to-cartesian-coordinates
   '''
   lat_rad = math.radians(lat)
   lon_rad = math.radians(lon)
@@ -91,7 +93,7 @@ def get_neighbors(cities: list, base_city: City, tree: KDTree, neighbor_cache: d
   base_xyz = coords_to_xyz(base_city.latitude, base_city.longitude)
 
   # calculate angular radius and convert to chord length
-  angular_radius = 1000 / EARTH_RADIUS_KM  # 1000 km in radians
+  angular_radius = 250 / EARTH_RADIUS_KM
   chord_radius = 2 * math.sin(angular_radius / 2)
 
   # kd trees are effecient ways to store coordinates in k-d space
@@ -108,9 +110,9 @@ def build_graph(cities: list) -> networkx.Graph:
   '''
   builds the initial graph (undirected, weighted) using the networkx library
   
-  only adds vertices whose edges are < 1000 (city is within 1000 km from the start node)
+  only adds vertices whose edges are < max_distance_km
   '''
-  max_distance_km = 1000
+  max_distance_km = 250
   graph = networkx.Graph()
   cities_new = list()
 

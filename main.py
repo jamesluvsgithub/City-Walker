@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 import os
 import folium
 import webbrowser
-from script import get_all_cities, build_graph, dijkstra, bellman_ford, coords_to_xyz, KDTree, neighbor_cache
+from city_walker import get_all_cities, build_graph, dijkstra, bellman_ford, coords_to_xyz, KDTree, neighbor_cache
 
 def visualize_path(path):
     if not path:
@@ -36,7 +36,7 @@ def run_algorithm():
         return
 
     try:
-        cities = get_all_cities(start, start_admin, "worldcities.csv")
+        cities = get_all_cities(start, start_admin, "dataset/worldcities.csv")
         xyz_coords = [coords_to_xyz(c.latitude, c.longitude) for c in cities]
         tree = KDTree(xyz_coords)
         neighbor_cache = {}
@@ -50,7 +50,7 @@ def run_algorithm():
         if algo == "Dijkstra":
             path, distance = dijkstra(graph, cities, start, start_admin, end, end_admin, tree, neighbor_cache)
         else:
-            path, distance = bellman_ford(graph, cities, start, end, tree, neighbor_cache)
+            path, distance = bellman_ford(graph, cities, start, start_admin, end, end_admin, tree, neighbor_cache)
     except Exception as e:
         messagebox.showerror("Algorithm Error", f"Something went wrong:\n{e}")
         return
@@ -74,7 +74,7 @@ def run_algorithm():
 
 # ------------------ gui setup ------------------
 root = tk.Tk()
-root.title("City Path Finder")
+root.title("City Walker")
 root.state("zoomed")
 
 root.columnconfigure(0, weight=1)
@@ -86,7 +86,7 @@ left_canvas = tk.Canvas(root, highlightthickness=0)
 left_canvas.grid(row=0, column=0, sticky="nsew")
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-bg_image_path = os.path.join(script_dir, "background.jpg")
+bg_image_path = os.path.join(script_dir, "images/background.jpg")
 bg_image = Image.open(bg_image_path)
 
 def resize_bg(event):
@@ -120,7 +120,7 @@ ttk.Label(content, text="Algorithm:", background="#d0e6ff").grid(row=0, column=0
 algo_menu = ttk.Combobox(content, textvariable=algo_var, values=["Dijkstra", "Bellman-Ford"], state="readonly", width=40)
 algo_menu.grid(row=1, column=0, sticky="w", pady=5)
 
-ttk.Label(content, text="Start City:", background="#d0e6ff").grid(row=2, column=0, sticky="w", pady=5)
+ttk.Label(content, text="Start City (case sensitive!):", background="#d0e6ff").grid(row=2, column=0, sticky="w", pady=5)
 start_entry = ttk.Entry(content, width=42)
 start_entry.grid(row=3, column=0, sticky="w", pady=5)
 
